@@ -88,6 +88,6 @@ class MCServer:
         return platform
 
 
-keep_alive
+keep_alive()
 bot = Bot()
 bot.run_bot()
