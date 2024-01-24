@@ -70,9 +70,13 @@ class MCServer:
 
     def get_players(self):
         status = self.SERVER.status()
-        player_list = [player.name for player in status.players.sample]
-        sorted_player_list = sorted(player_list)
-        return '\n'.join(sorted_player_list)
+
+        if status.players.online != 0:
+            player_list = [player.name for player in status.players.sample]
+            sorted_player_list = sorted(player_list)
+            return '\n'.join(sorted_player_list)
+        
+        return ""
 
     def get_version(self):
         status = self.SERVER.status()
