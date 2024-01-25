@@ -4,30 +4,31 @@ import asyncio
 import os
 from keep_alive import keep_alive
 
-
 class Bot:
-
     def run_bot(self):
         intents = discord.Intents.default()
         intents.message_content = True
         client = discord.Client(intents=intents)
         TOKEN = os.getenv("token")
-
         @client.event
         async def on_ready():
             print("Ready")
             channel_id = os.getenv("channel")
             channel = client.get_channel(int(channel_id))
 
-            print(channel)
             if channel:
                 mc_server = MCServer()
-                # Send the initial message
-                initial_embed = await self.send_embed(channel, mc_server)
-
                 while True:
-                    print("Sending Update")
-                    await self.send_embed(channel, mc_server, initial_embed)
+                    try:
+                        async for message in channel.history(limit=1):
+                            if message.author == client.user:
+                                await self.send_embed(channel, mc_server, message)
+                            else:
+                                await self.send_embed(channel, mc_server)
+                    except StopAsyncIteration:
+                        # Handle the case when there is no message in the channel history
+                        await self.send_embed(channel, mc_server)
+
                     await asyncio.sleep(1)
 
         client.run(token=TOKEN)
@@ -53,9 +54,12 @@ class Bot:
         embed.set_footer(text="made by Alven")
 
         if existing_embed:
-            await existing_embed.edit(embed=embed)
-            return existing_embed
+            print("Updating Message")
+            if existing_embed.embeds[0].fields[1].value != players:
+                await existing_embed.edit(embed=embed)
+                return existing_embed
         else:
+            print("Sending New Message")
             return await channel.send(embed=embed)
 
 
