@@ -25,7 +25,6 @@ class Bot:
     @tasks.loop(seconds=1)
     async def update_status(self):
         print("Task Update")
-        print(self.channel)
         if self.channel:
             print("Inside Channel")
             try:
