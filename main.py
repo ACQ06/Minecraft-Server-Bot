@@ -29,20 +29,27 @@ class Bot:
         if self.channel:
             print("Inside Channel")
             try:
-                async for message in self.channel.history(limit=1):
-                    print("Checking Message History")
-                    if message.author == self.client.user:
+                try:
+                    if self.message.author == self.client.user:
                         print("Updating my Own Message")
-                        await self.send_embed(self.channel, self.mc_server, message)
+                        await self.send_embed(self.channel, self.mc_server, self.message)
                     else:
                         print("Sending Message")
                         await self.send_embed(self.channel, self.mc_server)
+
+                except:
+                    self.message = await self.get_message()
+
             except StopAsyncIteration:
                 print("Sending Message")
                 await self.send_embed(self.channel)
             except Exception as e:
                 print(f"An error occurred in the update_status task: {e}")
 
+    async def get_message(self):
+        async for message in self.channel.history(limit=1):
+                    return message
+                    
 
     async def send_embed(self, channel, mc_server, existing_embed=None):
         address = mc_server.get_address()
