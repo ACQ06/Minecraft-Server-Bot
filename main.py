@@ -17,7 +17,8 @@ class Bot:
         @self.client.event
         async def on_ready():
             print("Ready")
-            self.channel = self.client.get_channel(int(self.channel_id))
+            if self.channel == None:
+                self.channel = self.client.get_channel(int(self.channel_id))
             self.update_status.start()
 
         self.client.run(token=TOKEN)
