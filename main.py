@@ -104,6 +104,6 @@ class MCServer:
         return f"{int(self.SERVER.ping())} ms"
 
 
-# keep_alive()
+keep_alive()
 bot = Bot()
 bot.run_bot()
