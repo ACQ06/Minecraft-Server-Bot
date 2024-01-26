@@ -8,24 +8,31 @@ class Bot:
     def __init__(self):
         self.client = discord.Client(intents=discord.Intents.default())
         self.mc_server = MCServer()
-        self.update_status.start()
 
     def run_bot(self):
-        TOKEN = os.getenv("token")
+        # TOKEN = os.getenv("token")
+        TOKEN = "MTA3ODU1ODE3NjA2MTk0Nzk1NA.GOTw6t.vtrmen6sIHRSR_aNI8mQbmEda4peo-8MwAokbE"
+
+        @self.client.event
+        async def on_ready():
+            print("Ready")
+            self.update_status.start()
+
         self.client.run(token=TOKEN)
 
     @tasks.loop(seconds=1)
     async def update_status(self):
-        channel_id = os.getenv("channel")
+        # channel_id = os.getenv("channel")
+        channel_id = 1199318506093674506
         channel = self.client.get_channel(int(channel_id))
-
+        
         if channel:
             try:
                 async for message in channel.history(limit=1):
                     if message.author == self.client.user:
-                        await self.send_embed(channel, message)
+                        await self.send_embed(channel, self.mc_server, message)
                     else:
-                        await self.send_embed(channel)
+                        await self.send_embed(channel, self.mc_server)
             except StopAsyncIteration:
                 await self.send_embed(channel)
             except Exception as e:
@@ -51,14 +58,13 @@ class Bot:
         embed.add_field(name="Platform", value=platform, inline=True)
         embed.add_field(name="Version", value=version, inline=True)
         embed.add_field(name="Players", value=player_count, inline=True)
-        embed.set_footer(text=f"Server Ping: {ping} • made my ACQ")
+        embed.set_footer(text=f"Server Ping: {ping} • ACQ")
 
         if existing_embed:
             if existing_embed.embeds[0].fields[1].value != players:
                 print("Updating Message")
                 await existing_embed.edit(embed=embed)
                 return existing_embed
-            
             print("No Update")
         else:
             print("Sending New Message")
@@ -68,7 +74,8 @@ class Bot:
 class MCServer:
 
     def __init__(self):
-        self.address = os.getenv("address")
+        # self.address = os.getenv("address")
+        self.address = "node02-sg.agilahost.com:25643"
         self.SERVER = JavaServer.lookup(self.address)
 
     def get_address(self):
@@ -98,9 +105,9 @@ class MCServer:
         return platform
     
     def get_ping(self):
-        return f"{self.SERVER.ping()} ms"
+        return f"{int(self.SERVER.ping())} ms"
 
 
-keep_alive()
+# keep_alive()
 bot = Bot()
 bot.run_bot()
