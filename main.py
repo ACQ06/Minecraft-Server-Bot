@@ -10,8 +10,7 @@ class Bot:
         self.mc_server = MCServer()
 
     def run_bot(self):
-        # TOKEN = os.getenv("token")
-        TOKEN = "MTA3ODU1ODE3NjA2MTk0Nzk1NA.GOTw6t.vtrmen6sIHRSR_aNI8mQbmEda4peo-8MwAokbE"
+        TOKEN = os.getenv("token")
 
         @self.client.event
         async def on_ready():
@@ -22,8 +21,7 @@ class Bot:
 
     @tasks.loop(seconds=1)
     async def update_status(self):
-        # channel_id = os.getenv("channel")
-        channel_id = 1199318506093674506
+        channel_id = os.getenv("channel")
         channel = self.client.get_channel(int(channel_id))
         
         if channel:
@@ -74,8 +72,7 @@ class Bot:
 class MCServer:
 
     def __init__(self):
-        # self.address = os.getenv("address")
-        self.address = "node02-sg.agilahost.com:25643"
+        self.address = os.getenv("address")
         self.SERVER = JavaServer.lookup(self.address)
 
     def get_address(self):
