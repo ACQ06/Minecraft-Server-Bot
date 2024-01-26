@@ -25,16 +25,16 @@ class Bot:
 
     @tasks.loop(seconds=1)
     async def update_status(self):
-        print("Task Update")
+        print("Task update")
         if self.channel:
-            print("Inside Channel")
+            print("Inside channel")
             try:
                 try:
                     if self.message.author == self.client.user:
-                        print("Updating my Own Message")
+                        print("Updating my own Message")
                         await self.send_embed(self.channel, self.mc_server, self.message)
                     else:
-                        print("Sending Message")
+                        print("Sending message")
                         await self.send_embed(self.channel, self.mc_server)
 
                 except:
@@ -48,6 +48,7 @@ class Bot:
 
     async def get_message(self):
         async for message in self.channel.history(limit=1):
+                    print("Finding my message")
                     return message
                     
 
@@ -61,7 +62,7 @@ class Bot:
 
         embed = discord.Embed(
             title="Minecraft Server",
-            description="KANGKONG CHIPS ORIGINAL BY JOSH MOICA",
+            description="KANGKONG CHIPS ORIGINAL BY JOSH MOJICA",
             color=discord.Color.green())
 
         embed.add_field(name="Address", value=address, inline=False)
