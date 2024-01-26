@@ -8,6 +8,8 @@ class Bot:
     def __init__(self):
         self.client = discord.Client(intents=discord.Intents.default())
         self.mc_server = MCServer()
+        self.channel_id = os.getenv("channel")
+        self.channel = self.client.get_channel(int(self.channel_id))
 
     def run_bot(self):
         TOKEN = os.getenv("token")
@@ -21,18 +23,15 @@ class Bot:
 
     @tasks.loop(seconds=1)
     async def update_status(self):
-        channel_id = os.getenv("channel")
-        channel = self.client.get_channel(int(channel_id))
-        
-        if channel:
+        if self.channel:
             try:
-                async for message in channel.history(limit=1):
+                async for message in self.channel.history(limit=1):
                     if message.author == self.client.user:
-                        await self.send_embed(channel, self.mc_server, message)
+                        await self.send_embed(self.channel, self.mc_server, message)
                     else:
-                        await self.send_embed(channel, self.mc_server)
+                        await self.send_embed(self.channel, self.mc_server)
             except StopAsyncIteration:
-                await self.send_embed(channel)
+                await self.send_embed(self.channel)
             except Exception as e:
                 print(f"An error occurred in the update_status task: {e}")
 
