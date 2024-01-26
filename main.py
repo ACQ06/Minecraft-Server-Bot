@@ -9,8 +9,7 @@ class Bot:
         self.client = discord.Client(intents=discord.Intents.default())
         self.mc_server = MCServer()
         self.channel_id = os.getenv("channel")
-        self.channel = None
-        self.message = None
+        self.channel = self.client.get_channel(int(self.channel_id))
 
     def run_bot(self):
         TOKEN = os.getenv("token")
@@ -18,8 +17,7 @@ class Bot:
         @self.client.event
         async def on_ready():
             print("Ready")
-            if self.channel == None:
-                self.channel = self.client.get_channel(int(self.channel_id))
+            self.channel = self.client.get_channel(int(self.channel_id))
             self.update_status.start()
 
         self.client.run(token=TOKEN)
@@ -27,7 +25,6 @@ class Bot:
     @tasks.loop(seconds=3)
     async def update_status(self):
         if self.channel:
-            print("Inside Channel")
             try:
                 print("Checking Message History")
                 async for message in self.channel.history(limit=1):
