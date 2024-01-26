@@ -8,14 +8,12 @@ class Bot:
     def __init__(self):
         self.client = discord.Client(intents=discord.Intents.default())
         self.mc_server = MCServer()
-        # self.channel_id = os.getenv("channel")
-        self.channel_id = 1199318506093674506
+        self.channel_id = os.getenv("channel")
         self.channel = None
         self.message = None
 
     def run_bot(self):
-        # TOKEN = os.getenv("token")
-        TOKEN = "MTA3ODU1ODE3NjA2MTk0Nzk1NA.GQmFhA.8l0BrYy-u1zyiTFiNy0hekNUTPUbvB0YkdqDlw"
+        TOKEN = os.getenv("token")
 
         @self.client.event
         async def on_ready():
@@ -81,8 +79,7 @@ class Bot:
 class MCServer:
 
     def __init__(self):
-        # self.address = os.getenv("address")
-        self.address = "125.253.92.18:25643"
+        self.address = os.getenv("address")
         self.SERVER = JavaServer.lookup(self.address)
 
     def get_address(self):
