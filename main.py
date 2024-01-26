@@ -14,7 +14,7 @@ class Bot:
         TOKEN = os.getenv("token")
         self.client.run(token=TOKEN)
 
-    @tasks.loop(seconds=60)
+    @tasks.loop(seconds=1)
     async def update_status(self):
         channel_id = os.getenv("channel")
         channel = self.client.get_channel(int(channel_id))
@@ -54,10 +54,12 @@ class Bot:
         embed.set_footer(text=f"Server Ping: {ping} • made my ACQ")
 
         if existing_embed:
-            print("Updating Message")
             if existing_embed.embeds[0].fields[1].value != players:
+                print("Updating Message")
                 await existing_embed.edit(embed=embed)
                 return existing_embed
+            
+            print("No Update")
         else:
             print("Sending New Message")
             return await channel.send(embed=embed)
