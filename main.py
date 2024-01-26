@@ -8,11 +8,14 @@ class Bot:
     def __init__(self):
         self.client = discord.Client(intents=discord.Intents.default())
         self.mc_server = MCServer()
-        self.channel_id = os.getenv("channel")
+        # self.channel_id = os.getenv("channel")
+        self.channel_id = 1199318506093674506
         self.channel = None
+        self.message = None
 
     def run_bot(self):
-        TOKEN = os.getenv("token")
+        # TOKEN = os.getenv("token")
+        TOKEN = "MTA3ODU1ODE3NjA2MTk0Nzk1NA.GQmFhA.8l0BrYy-u1zyiTFiNy0hekNUTPUbvB0YkdqDlw"
 
         @self.client.event
         async def on_ready():
@@ -23,34 +26,22 @@ class Bot:
 
         self.client.run(token=TOKEN)
 
-    @tasks.loop(seconds=1)
+    @tasks.loop(seconds=3)
     async def update_status(self):
-        print("Task update")
         if self.channel:
-            print("Inside channel")
+            print("Inside Channel")
             try:
-                try:
-                    if self.message.author == self.client.user:
-                        print("Updating my own Message")
-                        await self.send_embed(self.channel, self.mc_server, self.message)
+                print("Checking Message History")
+                async for message in self.channel.history(limit=1):
+                    if message.author == self.client.user:
+                        await self.send_embed(self.channel, self.mc_server, message)
                     else:
-                        print("Sending message")
                         await self.send_embed(self.channel, self.mc_server)
-
-                except:
-                    self.message = await self.get_message()
-
             except StopAsyncIteration:
-                print("Sending Message")
                 await self.send_embed(self.channel)
             except Exception as e:
                 print(f"An error occurred in the update_status task: {e}")
-
-    async def get_message(self):
-        async for message in self.channel.history(limit=1):
-                    print("Finding my message")
-                    return message
-                    
+        
 
     async def send_embed(self, channel, mc_server, existing_embed=None):
         address = mc_server.get_address()
@@ -74,20 +65,24 @@ class Bot:
         embed.set_footer(text=f"Server Ping: {ping} • ACQ")
 
         if existing_embed:
+            print(existing_embed.embeds[0].fields[1].value)
             if existing_embed.embeds[0].fields[1].value != players:
                 print("Updating Message")
                 await existing_embed.edit(embed=embed)
-                return existing_embed
-            print("No Update")
+                return
+            else:
+                print("No Update")
         else:
             print("Sending New Message")
-            return await channel.send(embed=embed)
+            await channel.send(embed=embed)
+            return 
 
 
 class MCServer:
 
     def __init__(self):
-        self.address = os.getenv("address")
+        # self.address = os.getenv("address")
+        self.address = "125.253.92.18:25643"
         self.SERVER = JavaServer.lookup(self.address)
 
     def get_address(self):
@@ -120,6 +115,6 @@ class MCServer:
         return f"{int(self.SERVER.ping())} ms"
 
 
-keep_alive()
+# keep_alive()
 bot = Bot()
 bot.run_bot()
