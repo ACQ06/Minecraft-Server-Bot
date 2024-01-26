@@ -9,7 +9,7 @@ class Bot:
         self.client = discord.Client(intents=discord.Intents.default())
         self.mc_server = MCServer()
         self.channel_id = os.getenv("channel")
-        self.channel = self.client.get_channel(int(self.channel_id))
+        self.channel = None
 
     def run_bot(self):
         TOKEN = os.getenv("token")
@@ -17,20 +17,28 @@ class Bot:
         @self.client.event
         async def on_ready():
             print("Ready")
+            self.channel = self.client.get_channel(int(self.channel_id))
             self.update_status.start()
 
         self.client.run(token=TOKEN)
 
     @tasks.loop(seconds=1)
     async def update_status(self):
+        print("Task Update")
+        print(self.channel)
         if self.channel:
+            print("Inside Channel")
             try:
                 async for message in self.channel.history(limit=1):
+                    print("Checking Message History")
                     if message.author == self.client.user:
+                        print("Updating my Own Message")
                         await self.send_embed(self.channel, self.mc_server, message)
                     else:
+                        print("Sending Message")
                         await self.send_embed(self.channel, self.mc_server)
             except StopAsyncIteration:
+                print("Sending Message")
                 await self.send_embed(self.channel)
             except Exception as e:
                 print(f"An error occurred in the update_status task: {e}")
@@ -104,6 +112,6 @@ class MCServer:
         return f"{int(self.SERVER.ping())} ms"
 
 
-# keep_alive()
+keep_alive()
 bot = Bot()
 bot.run_bot()
