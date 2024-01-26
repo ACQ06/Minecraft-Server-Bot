@@ -1,37 +1,36 @@
 import discord
+from discord.ext import tasks
 from mcstatus import JavaServer
-import asyncio
 import os
 from keep_alive import keep_alive
 
 class Bot:
+    def __init__(self):
+        self.client = discord.Client(intents=discord.Intents.default())
+        self.mc_server = MCServer()
+        self.update_status.start()
+
     def run_bot(self):
-        intents = discord.Intents.default()
-        intents.message_content = True
-        client = discord.Client(intents=intents)
         TOKEN = os.getenv("token")
-        @client.event
-        async def on_ready():
-            print("Ready")
-            channel_id = os.getenv("channel")
-            channel = client.get_channel(int(channel_id))
+        self.client.run(token=TOKEN)
 
-            if channel:
-                mc_server = MCServer()
-                while True:
-                    try:
-                        async for message in channel.history(limit=1):
-                            if message.author == client.user:
-                                await self.send_embed(channel, mc_server, message)
-                            else:
-                                await self.send_embed(channel, mc_server)
-                    except StopAsyncIteration:
-                        # Handle the case when there is no message in the channel history
-                        await self.send_embed(channel, mc_server)
+    @tasks.loop(seconds=60)
+    async def update_status(self):
+        channel_id = os.getenv("channel")
+        channel = self.client.get_channel(int(channel_id))
 
-                    await asyncio.sleep(1)
+        if channel:
+            try:
+                async for message in channel.history(limit=1):
+                    if message.author == self.client.user:
+                        await self.send_embed(channel, message)
+                    else:
+                        await self.send_embed(channel)
+            except StopAsyncIteration:
+                await self.send_embed(channel)
+            except Exception as e:
+                print(f"An error occurred in the update_status task: {e}")
 
-        client.run(token=TOKEN)
 
     async def send_embed(self, channel, mc_server, existing_embed=None):
         address = mc_server.get_address()
@@ -39,6 +38,7 @@ class Bot:
         platform = mc_server.get_platform()
         player_count = mc_server.get_player_count()
         players = mc_server.get_players()
+        ping = mc_server.get_ping()
 
         embed = discord.Embed(
             title="Minecraft Server",
@@ -51,7 +51,7 @@ class Bot:
         embed.add_field(name="Platform", value=platform, inline=True)
         embed.add_field(name="Version", value=version, inline=True)
         embed.add_field(name="Players", value=player_count, inline=True)
-        embed.set_footer(text="made by Alven")
+        embed.set_footer(text=f"Server Ping: {ping} • made my ACQ")
 
         if existing_embed:
             print("Updating Message")
@@ -94,6 +94,9 @@ class MCServer:
         status = self.SERVER.status()
         platform = "Bedrock" if status.motd.bedrock else "Java"
         return platform
+    
+    def get_ping(self):
+        return f"{self.SERVER.ping()} ms"
 
 
 keep_alive()
