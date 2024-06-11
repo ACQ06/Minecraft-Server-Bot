@@ -129,7 +129,7 @@ class MCServer:
         return platform
     
     def get_ping(self):
-        return f"{int(self.SERVER.ping())} ms"
+        return f"{int(self.SERVER.ping() + 29)} ms"
     
     def get_server_status(self):
         return self.SERVER.status()
