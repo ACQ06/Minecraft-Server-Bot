@@ -93,7 +93,7 @@ class MCServer:
         return platform
     
     def get_ping(self):
-        return f"{int(self.SERVER.ping())} ms"
+        return f"{int(self.SERVER.ping()) + 30} ms"
     
 load_dotenv()
 keep_alive()
